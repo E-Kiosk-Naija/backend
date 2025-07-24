@@ -30,6 +30,7 @@ export class UserDto {
   @ApiProperty({
     description: 'Google ID of the user, if using google Authentication',
     example: '1234567890',
+    type: String,
     required: false,
   })
   googleId?: string | null;
