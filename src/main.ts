@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './exception/all-exceptions.filter';
+import { ApiResponse } from './universal/api.response';
+import { UserDto } from './users/schema/dtos/user.dto';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,10 +33,10 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const config = new DocumentBuilder()
-    .setTitle('E-Kiosk Naija API')
+    .setTitle('e-Kiosk Naija API')
     .setDescription('The E-Kiosk Naija API documentation')
     .setVersion('1.0.0')
-    .addTag('e-Kiosk')
+    // .addTag('e-Kiosk')
     .addBearerAuth(
       {
         type: 'http',
@@ -46,7 +48,9 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [ApiResponse, UserDto], // Add any additional models that are not automatically included
+  });
   SwaggerModule.setup('api-docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);

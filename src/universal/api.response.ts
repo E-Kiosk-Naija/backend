@@ -16,7 +16,7 @@ export class ApiResponse<T> {
 
   @ApiProperty({
     description: 'Status message of the API response',
-    example: 'User registered successfully',
+    example: 'Success',
   })
   status: string;
 
