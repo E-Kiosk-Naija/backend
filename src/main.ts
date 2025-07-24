@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+import { ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './exception/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,8 +15,20 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Use global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Strip properties that do not have decorators
+      forbidNonWhitelisted: true, // Throw an error if non-whitelisted properties are found
+      transform: true, // Automatically transform payloads to DTO instances
+    }),
+  );
+
   // Ensure class-validator uses the NestJS dependency injection container
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  // Use global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const config = new DocumentBuilder()
     .setTitle('E-Kiosk Naija API')

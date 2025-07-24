@@ -1,23 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
 import { SignupMethod } from './enums/signup-method.enum';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class User {
-  @Prop({ type: Types.ObjectId })
-  _id: Types.ObjectId;
-
   @Prop()
   fullName: string;
 
-  @Prop()
+  @Prop({ required: true })
   avatar: string;
 
   @Prop({ unique: true })
   email: string;
 
-  @Prop({ required: false, default: null })
+  @Prop({ type: String, required: false, default: null })
   googleId: string | null;
 
   @Prop({
@@ -28,18 +25,20 @@ export class User {
   signupMethod: SignupMethod;
 
   @Prop({
+    type: String,
     required: false,
     default: null,
   })
   password: string | null;
 
   @Prop({
+    type: String,
     required: false,
     default: null,
   })
   verificationCode: string | null;
 
-  @Prop({ required: false, default: null })
+  @Prop({ type: String, required: false, default: null })
   verificationCodeExpiry: Date | null;
 
   @Prop({
@@ -49,13 +48,17 @@ export class User {
   })
   status: AccountStatus;
 
-  @Prop({ required: false, default: null })
+  @Prop({ type: String, required: false, default: null })
   refreshToken: string | null;
+
+  @Prop({ type: Date, required: false, default: null })
+  lastLogin: Date | null;
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
 
   @Prop({
+    type: Date,
     required: false,
     default: null,
   })
@@ -63,3 +66,4 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+export type UserDocument = User & Document<Types.ObjectId>;
