@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { error } from 'console';
 import { Response } from 'express';
 
 @Catch()
@@ -21,7 +22,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let errorResponse: any = {
       statusCode: status,
       message: 'Internal server error',
-      error: 'Error',
     };
 
     if (exception instanceof HttpException) {
@@ -29,12 +29,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (typeof res === 'string') {
         errorResponse.message = res;
       } else if (typeof res === 'object') {
-        errorResponse = { ...errorResponse, ...res };
+        errorResponse = {
+          ...errorResponse,
+          ...res,
+        };
+
+        if (process.env.NODE_ENV !== 'production') {
+          errorResponse.stack = (exception as Error).stack;
+        }
       }
     }
 
     response.status(status).json({
       success: false,
+      status: 'Error',
       ...errorResponse,
     });
   }

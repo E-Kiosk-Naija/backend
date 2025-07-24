@@ -1,5 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
@@ -40,6 +42,50 @@ export class UsersAuthController {
               },
             },
           ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            statusCode: { type: 'number', example: 400 },
+            message: {
+              type: 'string[]',
+              example: [
+                'Email is required',
+                'Invalid email format',
+                'Full name must be a string',
+                'Full name is required',
+                'Password must be strong',
+                'Password must be a string',
+                'Password is required',
+              ],
+            },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: 'User with this email already exists',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 409 },
+            message: {
+              type: 'string',
+              example: 'User with this email already exists',
+            },
+          },
         },
       },
     },
