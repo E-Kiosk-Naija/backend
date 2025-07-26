@@ -4,10 +4,12 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -27,6 +29,8 @@ import { LoginRequest } from './dtos/login.request';
 import { LocalAuthGuard } from './guards/local.guard';
 import { LoginValidationGuard } from './guards/login.validation.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { JwtRefreshValidationGuard } from './guards/jwt-refresh-validation.guard';
+import { JwtRefreshTokenGuard } from './guards/jwt-refresh.guard';
 
 @Controller('auth/users')
 @ApiTags('Users Authentication')
@@ -260,6 +264,7 @@ export class UsersAuthController {
   // Refresh Token (JWT Refresh Token in Header) - Secure Route
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshValidationGuard, JwtRefreshTokenGuard)
   @ApiOperation({
     summary: 'Refresh User Token',
     description: 'Refreshes the user access token using the refresh token.',
@@ -302,9 +307,15 @@ export class UsersAuthController {
       },
     },
   })
-  async refreshToken(): Promise<ApiResponse<LoginResponse>> {
-    // This method should be implemented to handle token refresh logic
-    throw new Error('Method not implemented yet');
+  @ApiBearerAuth('accessToken')
+  async refreshToken(
+    @Req() req: Request,
+    @CurrentUser() user: UserDto,
+  ): Promise<ApiResponse<LoginResponse>> {
+    return await this.usersAuthService.refreshToken(
+      user,
+      req['refreshToken'] as string,
+    );
   }
 
   // Google OAuth Signup/Login

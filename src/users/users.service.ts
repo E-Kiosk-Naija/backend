@@ -56,20 +56,26 @@ export class UsersService {
       sub: user.id,
     };
 
+    const accessToken = this.generateAccessToken({
+      ...tokenPayload,
+      type: 'access',
+    });
+
+    // TODO: Hash the refresh token payload
+    const refreshToken = this.generateRefreshToken({
+      ...tokenPayload,
+      type: 'refresh',
+    });
+
     user = await this.userModel.findByIdAndUpdate(user.id, {
       ...user,
       lastLogin: new Date(),
+      refreshToken,
     });
 
     const loginResponse: LoginResponse = new LoginResponse(
-      this.generateAccessToken({
-        ...tokenPayload,
-        type: 'access',
-      }),
-      this.generateRefreshToken({
-        ...tokenPayload,
-        type: 'refresh',
-      }),
+      accessToken,
+      refreshToken,
       this.toDto(user),
     );
 
@@ -89,7 +95,7 @@ export class UsersService {
    * @remarks
    * The secret and expiration time for the token are retrieved from the configuration service.
    */
-  private generateAccessToken(tokenPayload): string {
+  public generateAccessToken(tokenPayload): string {
     return this.jwtService.sign(tokenPayload, {
       secret: this.configService.getOrThrow('JWT_SECRET'),
       expiresIn: this.configService.getOrThrow('JWT_EXPIRES_IN'),

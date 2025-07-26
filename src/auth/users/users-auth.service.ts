@@ -206,6 +206,32 @@ export class UsersAuthService {
     );
   }
 
+  async refreshToken(
+    user: UserDto,
+    refreshToken: string,
+  ): Promise<ApiResponse<LoginResponse>> {
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+
+    const tokenPayload = {
+      sub: user.id,
+      type: 'access',
+    };
+
+    const loginResponse: LoginResponse = new LoginResponse(
+      this.userService.generateAccessToken(tokenPayload),
+      refreshToken,
+      user,
+    );
+
+    return ApiResponse.success<LoginResponse>(
+      HttpStatus.OK,
+      'Token refreshed successfully',
+      loginResponse,
+    );
+  }
+
   private generateAvatar(): string {
     const randomNumber = Math.floor(Math.random() * 50) + 1;
     return `https://avatar.iran.liara.run/public/${randomNumber}`;
