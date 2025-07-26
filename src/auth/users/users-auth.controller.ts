@@ -204,7 +204,7 @@ export class UsersAuthController {
   // Login with Email
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LoginValidationGuard, LocalAuthGuard)
   @ApiOperation({
     summary: 'Login with Email',
     description: 'Logs in a user with their email and password.',
