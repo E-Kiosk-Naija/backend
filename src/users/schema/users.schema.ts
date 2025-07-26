@@ -38,7 +38,7 @@ export class User {
   })
   verificationCode: string | null;
 
-  @Prop({ type: String, required: false, default: null })
+  @Prop({ type: Date, required: false, default: null })
   verificationCodeExpiry: Date | null;
 
   @Prop({

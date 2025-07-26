@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './exception/all-exceptions.filter';
 import { ApiResponse } from './universal/api.response';
 import { UserDto } from './users/schema/dtos/user.dto';
+import { LoginResponse } from './auth/users/dtos/login.response';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -49,7 +50,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [ApiResponse, UserDto], // Add any additional models that are not automatically included
+    extraModels: [ApiResponse, UserDto, LoginResponse], // Add any additional models that are not automatically included
   });
   SwaggerModule.setup('api-docs', app, document);
 
