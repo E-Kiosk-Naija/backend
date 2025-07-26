@@ -15,6 +15,7 @@ import { UserDto } from 'src/users/schema/dtos/user.dto';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { LoginResponse } from './dtos/login.response';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
+import { LoginRequest } from './dtos/login.request';
 
 @Controller('auth/users')
 @ApiTags('Users Authentication')
@@ -171,6 +172,7 @@ export class UsersAuthController {
         schema: {
           properties: {
             success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
             statusCode: { type: 'number', example: 400 },
             message: {
               type: 'string',
@@ -189,8 +191,105 @@ export class UsersAuthController {
   }
 
   // Login with Email
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Login with Email',
+    description: 'Logs in a user with their email and password.',
+  })
+  @ApiOkResponse({
+    description: 'User logged in successfully',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(ApiResponse) },
+            {
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'User logged in successfully',
+                },
+                data: { $ref: getSchemaPath(LoginResponse) },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid email or password',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 400 },
+            message: { type: 'string', example: 'Invalid email or password' },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
+  async login(
+    @Body() loginDto: LoginRequest,
+  ): Promise<ApiResponse<LoginResponse>> {
+    return await this.usersAuthService.login(loginDto);
+  }
 
   // Refresh Token (JWT Refresh Token in Header) - Secure Route
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Refresh User Token',
+    description: 'Refreshes the user access token using the refresh token.',
+  })
+  @ApiOkResponse({
+    description: 'Token refreshed successfully',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(ApiResponse) },
+            {
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'Token refreshed successfully',
+                },
+                data: { $ref: getSchemaPath(LoginResponse) },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid refresh token',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 400 },
+            message: { type: 'string', example: 'Invalid refresh token' },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
+  async refreshToken(): Promise<ApiResponse<LoginResponse>> {
+    // This method should be implemented to handle token refresh logic
+    throw new Error('Method not implemented yet');
+  }
 
   // Google OAuth Signup/Login
 

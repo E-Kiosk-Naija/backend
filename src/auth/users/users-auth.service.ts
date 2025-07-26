@@ -15,6 +15,7 @@ import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
 import { LoginResponse } from './dtos/login.response';
+import { LoginRequest } from './dtos/login.request';
 
 @Injectable()
 export class UsersAuthService {
@@ -182,6 +183,34 @@ export class UsersAuthService {
       );
       throw new BadRequestException(error.message);
     }
+  }
+
+  async login(loginDto: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+    const user = await this.userService.getUser({
+      email: loginDto.email,
+      status: AccountStatus.VERIFIED,
+      isDeleted: false,
+    });
+    if (!user) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    if (!user.password) {
+      throw new BadRequestException(
+        'You can only login with Google using this email',
+      );
+    }
+
+    const isPasswordValid = await compare(loginDto.password, user.password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    return await this.userService.generateLoginResponse(
+      user,
+      'Login successful',
+    );
   }
 
   private generateAvatar(): string {
