@@ -4,9 +4,10 @@ import { Strategy } from 'passport-local';
 import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
 import { UsersService } from 'src/users/users.service';
 import { compare } from 'bcrypt';
+import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
+export class LocalStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(LocalStrategy.name);
 
   constructor(private readonly userService: UsersService) {
@@ -16,33 +17,34 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   }
 
   async validate(email: string, password: string): Promise<any> {
-    try {
-      const user = await this.userService.getUser({ email });
+    const user = await this.userService.findUser({
+      email,
+      status: AccountStatus.VERIFIED,
+    });
 
-      if (
-        !user ||
-        !user.password ||
-        !(await compare(password, user.password))
-      ) {
-        throw new BadRequestException('Invalid credentials');
-      }
-
-      if (user.isDeleted) {
-        throw new BadRequestException('User account is deleted');
-      }
-
-      if (user.status === AccountStatus.SUSPENDED) {
-        throw new BadRequestException('User account is suspended');
-      }
-
-      if (user.status === AccountStatus.PENDING) {
-        throw new BadRequestException('User account is pending verification');
-      }
-
-      return user;
-    } catch (error) {
-      this.logger.error('Error during local strategy validation', error);
-      throw new BadRequestException('Authentication failed');
+    if (!user) {
+      throw new BadRequestException('Invalid email or password');
     }
+
+    // Add additional check for Google-only users
+    if (!user.password && user.signupMethod === SignupMethod.GOOGLE) {
+      throw new BadRequestException('Please use Google login for this account');
+    }
+
+    const isPasswordValid = user.password
+      ? await compare(password, user.password)
+      : false;
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    // if (
+    //   user.status !== AccountStatus.VERIFIED &&
+    //   user.status === AccountStatus.PENDING
+    // ) {
+    //   throw new BadRequestException('Account is not active');
+    // }
+
+    return this.userService.toDto(user);
   }
 }

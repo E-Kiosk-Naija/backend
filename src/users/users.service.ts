@@ -25,9 +25,15 @@ export class UsersService {
     return this.toDto(newUser);
   }
 
-  async getUser(query: FilterQuery<UserDto>): Promise<User | null> {
+  async findUser(
+    query: FilterQuery<UserDocument>,
+  ): Promise<UserDocument | null> {
+    return await this.userModel.findOne(query);
+  }
+
+  async getUser(query: FilterQuery<UserDto>): Promise<UserDto | null> {
     const user = await this.userModel.findOne(query);
-    return user ? user : null;
+    return user ? this.toDto(user) : null;
   }
 
   async updateUser(
@@ -43,7 +49,7 @@ export class UsersService {
   }
 
   public async generateLoginResponse(
-    user: UserDocument | any,
+    user: UserDto | any,
     message: string,
   ): Promise<ApiResponse<LoginResponse>> {
     const tokenPayload = {
@@ -107,7 +113,7 @@ export class UsersService {
     });
   }
 
-  private toDto(user: UserDocument): UserDto {
+  public toDto(user: UserDocument): UserDto {
     const plain = user.toObject();
     return new UserDto({
       id: user._id.toString(),

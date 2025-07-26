@@ -125,87 +125,80 @@ export class UsersAuthService {
   async confirmEmail(
     confirmEmailDto: VerifyEmailRequest,
   ): Promise<ApiResponse<LoginResponse>> {
-    try {
-      const user = await this.userService.validateEmail(confirmEmailDto.email);
-      if (!user) {
-        throw new BadRequestException(
-          'Invalid email address or verification code',
-        );
-      }
-      if (user.status === AccountStatus.VERIFIED) {
-        throw new BadRequestException('User account is already verified');
-      }
-      if (!user.verificationCode) {
-        throw new BadRequestException('Invalid verification code');
-      }
-      const isCodeValid = await compare(
-        confirmEmailDto.verificationCode,
-        user.verificationCode,
+    const user = await this.userService.validateEmail(confirmEmailDto.email);
+    if (!user) {
+      throw new BadRequestException(
+        'Invalid email address or verification code',
       );
-      if (!isCodeValid) {
-        throw new BadRequestException('Invalid verification code');
-      }
-      if (
-        user.verificationCodeExpiry &&
-        user.verificationCodeExpiry < new Date()
-      ) {
-        throw new BadRequestException('Verification code has expired');
-      }
-
-      if (user.status !== AccountStatus.PENDING) {
-        throw new BadRequestException(
-          'User account is not in a valid state to confirm email, contact support',
-        );
-      }
-
-      user.status = AccountStatus.VERIFIED;
-      user.verificationCode = null;
-      user.verificationCodeExpiry = null;
-
-      const updatedUser = await this.userService.updateUser(user.id, {
-        status: AccountStatus.VERIFIED,
-        verificationCode: null,
-        verificationCodeExpiry: null,
-      });
-      if (!updatedUser) {
-        throw new BadRequestException('Failed to update user status');
-      }
-
-      this.logger.log(`User ${user.email} confirmed their email successfully`);
-
-      return await this.userService.generateLoginResponse(
-        updatedUser,
-        'Email confirmed successfully',
-      );
-    } catch (error) {
-      this.logger.error(
-        `Error confirming email for ${confirmEmailDto.email}: ${error.message}`,
-      );
-      throw new BadRequestException(error.message);
     }
+    if (user.status === AccountStatus.VERIFIED) {
+      throw new BadRequestException('User account is already verified');
+    }
+    if (!user.verificationCode) {
+      throw new BadRequestException('Invalid verification code');
+    }
+    const isCodeValid = await compare(
+      confirmEmailDto.verificationCode,
+      user.verificationCode,
+    );
+    if (!isCodeValid) {
+      throw new BadRequestException('Invalid verification code');
+    }
+    if (
+      user.verificationCodeExpiry &&
+      user.verificationCodeExpiry < new Date()
+    ) {
+      throw new BadRequestException('Verification code has expired');
+    }
+
+    if (user.status !== AccountStatus.PENDING) {
+      throw new BadRequestException(
+        'User account is not in a valid state to confirm email, contact support',
+      );
+    }
+
+    user.status = AccountStatus.VERIFIED;
+    user.verificationCode = null;
+    user.verificationCodeExpiry = null;
+
+    const updatedUser = await this.userService.updateUser(user.id, {
+      status: AccountStatus.VERIFIED,
+      verificationCode: null,
+      verificationCodeExpiry: null,
+    });
+    if (!updatedUser) {
+      throw new BadRequestException('Failed to update user status');
+    }
+
+    this.logger.log(`User ${user.email} confirmed their email successfully`);
+
+    return await this.userService.generateLoginResponse(
+      updatedUser,
+      'Email confirmed successfully',
+    );
   }
 
-  async login(loginDto: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const user = await this.userService.getUser({
-      email: loginDto.email,
-      status: AccountStatus.VERIFIED,
-      isDeleted: false,
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid email or password');
-    }
+  async login(user: UserDto): Promise<ApiResponse<LoginResponse>> {
+    // const user = await this.userService.getUser({
+    //   email: loginDto.email,
+    //   status: AccountStatus.VERIFIED,
+    //   isDeleted: false,
+    // });
+    // if (!user) {
+    //   throw new BadRequestException('Invalid email or password');
+    // }
 
-    if (!user.password) {
-      throw new BadRequestException(
-        'You can only login with Google using this email',
-      );
-    }
+    // if (!user.password) {
+    //   throw new BadRequestException(
+    //     'You can only login with Google using this email',
+    //   );
+    // }
 
-    const isPasswordValid = await compare(loginDto.password, user.password);
+    // const isPasswordValid = await compare(loginDto.password, user.password);
 
-    if (!isPasswordValid) {
-      throw new BadRequestException('Invalid email or password');
-    }
+    // if (!isPasswordValid) {
+    //   throw new BadRequestException('Invalid email or password');
+    // }
 
     return await this.userService.generateLoginResponse(
       user,

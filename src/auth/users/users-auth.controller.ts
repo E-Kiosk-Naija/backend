@@ -1,6 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -16,6 +24,9 @@ import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { LoginResponse } from './dtos/login.response';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
 import { LoginRequest } from './dtos/login.request';
+import { LocalAuthGuard } from './guards/local.guard';
+import { LoginValidationGuard } from './guards/login.validation.guard';
+import { CurrentUser } from '../decorators/current-user.decorator';
 
 @Controller('auth/users')
 @ApiTags('Users Authentication')
@@ -193,6 +204,7 @@ export class UsersAuthController {
   // Login with Email
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
   @ApiOperation({
     summary: 'Login with Email',
     description: 'Logs in a user with their email and password.',
@@ -235,10 +247,14 @@ export class UsersAuthController {
       },
     },
   })
+  @ApiBody({
+    description: 'Login credentials',
+    type: LoginRequest,
+  })
   async login(
-    @Body() loginDto: LoginRequest,
+    @CurrentUser() user: UserDto,
   ): Promise<ApiResponse<LoginResponse>> {
-    return await this.usersAuthService.login(loginDto);
+    return await this.usersAuthService.login(user);
   }
 
   // Refresh Token (JWT Refresh Token in Header) - Secure Route
