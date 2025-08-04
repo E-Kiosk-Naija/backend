@@ -31,6 +31,8 @@ import { LoginValidationGuard } from './guards/login.validation.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtRefreshValidationGuard } from './guards/jwt-refresh-validation.guard';
 import { JwtRefreshTokenGuard } from './guards/jwt-refresh.guard';
+import { PasswordResetRequest } from './dtos/password-reset.request';
+import { ResetPasswordRequest } from './dtos/reset-password.request';
 
 @Controller('auth/users')
 @ApiTags('Users Authentication')
@@ -318,11 +320,93 @@ export class UsersAuthController {
     );
   }
 
-  // Google OAuth Signup/Login
+  // TODO: Google OAuth Signup/Login
 
-  // Forgot Password
+  // TODO: Forgot Password
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Forgot User Password',
+    description: 'Reset user password when the passord is not remembered',
+  })
+  @ApiOkResponse({
+    description: 'Password Reset, OTP sent to your email',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(ApiResponse) },
+            {
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'Password Reset OTP sent to your email',
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  async passwordReset(
+    @Body() passwordReset: PasswordResetRequest,
+  ): Promise<ApiResponse<string>> {
+    return await this.usersAuthService.passwordReset(passwordReset);
+  }
 
-  // Verify Password Reset Code
-
-  // Reset Password
+  // TODO: Reset Password
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Confirm User Email',
+    description: 'Confirms the user email using the verification code (OTP)',
+  })
+  @ApiOkResponse({
+    description: 'Email confirmed successfully',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            {
+              $ref: getSchemaPath(ApiResponse),
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'Email confirmed successfully',
+                },
+                data: { $ref: getSchemaPath(LoginResponse) },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 400 },
+            message: {
+              type: 'string',
+              example: 'Invalid email address or verification code',
+            },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
+  async resetPasswprd(
+    @Body() resetPassword: ResetPasswordRequest,
+  ): Promise<ApiResponse<LoginResponse>> {
+    return await this.usersAuthService.resetPassword(resetPassword);
+  }
 }

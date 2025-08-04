@@ -15,13 +15,18 @@ import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
 import { LoginResponse } from './dtos/login.response';
-import { LoginRequest } from './dtos/login.request';
+import { PasswordResetRequest } from './dtos/password-reset.request';
+import { ConfigService } from '@nestjs/config';
+import { ResetPasswordRequest } from './dtos/reset-password.request';
 
 @Injectable()
 export class UsersAuthService {
   private readonly logger = new Logger(UsersAuthService.name);
 
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async emailSignup(
     emailSignupDto: EmailSignupDto,
@@ -56,7 +61,10 @@ export class UsersAuthService {
 
     const verificationCode = await hash(otp, 10);
     const verificationCodeExpiry = new Date();
-    verificationCodeExpiry.setMinutes(verificationCodeExpiry.getMinutes() + 1);
+    verificationCodeExpiry.setMinutes(
+      verificationCodeExpiry.getMinutes() +
+        this.configService.getOrThrow<number>('OTP_EXPIRY_IN_MINS'),
+    );
 
     const newUser = await this.userService.createUser({
       ...emailSignupDto,
@@ -67,7 +75,7 @@ export class UsersAuthService {
       verificationCodeExpiry,
     });
 
-    this.logger.log(
+    this.logger.debug(
       `New user registered: ${newUser.email} with verification code: ${otp}`,
     );
 
@@ -100,10 +108,13 @@ export class UsersAuthService {
 
     const newVerificationCode = await hash(otp, 10);
     const verificationCodeExpiry = new Date();
-    verificationCodeExpiry.setMinutes(verificationCodeExpiry.getMinutes() + 1);
+    verificationCodeExpiry.setMinutes(
+      verificationCodeExpiry.getMinutes() +
+        this.configService.getOrThrow<number>('OTP_EXPIRY_IN_MINS'),
+    );
 
-    user.verificationCode = newVerificationCode;
-    user.verificationCodeExpiry = verificationCodeExpiry;
+    // user.verificationCode = newVerificationCode;
+    // user.verificationCodeExpiry = verificationCodeExpiry;
 
     await this.userService.updateUser(user._id.toString(), {
       verificationCode: newVerificationCode,
@@ -112,7 +123,7 @@ export class UsersAuthService {
 
     // TODO: Implement email sending logic
 
-    this.logger.log(
+    this.logger.debug(
       `Verification code sent to ${resendOtpRequest.email}: ${otp}`,
     );
 
@@ -165,12 +176,13 @@ export class UsersAuthService {
       status: AccountStatus.VERIFIED,
       verificationCode: null,
       verificationCodeExpiry: null,
+      lastLogin: new Date(),
     });
     if (!updatedUser) {
       throw new BadRequestException('Failed to update user status');
     }
 
-    this.logger.log(`User ${user.email} confirmed their email successfully`);
+    this.logger.debug(`User ${user.email} confirmed their email successfully`);
 
     return await this.userService.generateLoginResponse(
       updatedUser,
@@ -229,6 +241,91 @@ export class UsersAuthService {
       HttpStatus.OK,
       'Token refreshed successfully',
       loginResponse,
+    );
+  }
+
+  async passwordReset(
+    resetRequest: PasswordResetRequest,
+  ): Promise<ApiResponse<string>> {
+    const account = await this.userService.findUser({
+      email: resetRequest.email,
+    });
+
+    if (!account) throw new BadRequestException('Account not found');
+
+    if (account.signupMethod === SignupMethod.GOOGLE)
+      throw new BadRequestException(
+        'This account can only be used with google login',
+      );
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const newVerificationCode = await hash(otp, 10);
+    const verificationCodeExpiry = new Date();
+    verificationCodeExpiry.setMinutes(
+      verificationCodeExpiry.getMinutes() +
+        this.configService.getOrThrow<number>('OTP_EXPIRY_IN_MINS'),
+    );
+
+    await this.userService.updateUser(account._id.toString(), {
+      verificationCode: newVerificationCode,
+      verificationCodeExpiry,
+      password: null,
+    });
+
+    this.logger.debug(
+      `Verification code sent to ${resetRequest.email}: ${otp}`,
+    );
+
+    return ApiResponse.success<string>(
+      HttpStatus.OK,
+      `Password Reset, OTP sent to your email ${resetRequest.email}`,
+    );
+  }
+
+  async resetPassword(
+    resetRequest: ResetPasswordRequest,
+  ): Promise<ApiResponse<LoginResponse>> {
+    const account = await this.userService.findUser({
+      email: resetRequest.email,
+    });
+
+    if (!account) throw new BadRequestException('Account not found');
+
+    if (account.verificationCode === null)
+      throw new BadRequestException('Invalid OTP');
+
+    const isCodeValid = await compare(
+      resetRequest.otp,
+      account.verificationCode,
+    );
+
+    if (!isCodeValid) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (
+      account.verificationCodeExpiry &&
+      account.verificationCodeExpiry < new Date()
+    ) {
+      throw new BadRequestException('Verification code has expired');
+    }
+
+    if (account.signupMethod === SignupMethod.GOOGLE)
+      throw new BadRequestException(
+        'This account uses google auth, no need for password reset',
+      );
+
+    const updatedUser = await this.userService.updateUser(
+      account._id.toString(),
+      {
+        password: await hash(resetRequest.newPassword, 10),
+      },
+    );
+
+    return await this.userService.generateLoginResponse(
+      updatedUser,
+      'Password Changed Successfully',
     );
   }
 

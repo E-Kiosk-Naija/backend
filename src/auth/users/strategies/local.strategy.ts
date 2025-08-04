@@ -31,9 +31,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new BadRequestException('Please use Google login for this account');
     }
 
-    const isPasswordValid = user.password
-      ? await compare(password, user.password)
-      : false;
+    if (user.password === null)
+      throw new BadRequestException(
+        'You requested to reset you password, please complete that to login',
+      );
+
+    const isPasswordValid = await compare(password, user.password);
+
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid email or password');
     }
