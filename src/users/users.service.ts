@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/users.schema';
 import { FilterQuery, Model } from 'mongoose';
@@ -7,6 +12,7 @@ import { ApiResponse } from 'src/universal/api.response';
 import { LoginResponse } from 'src/auth/users/dtos/login.response';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +20,7 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async validateEmail(email: string): Promise<UserDocument | null> {
@@ -39,13 +46,15 @@ export class UsersService {
   async updateUser(
     userId: string,
     updateData: Partial<User>,
-  ): Promise<UserDto | null> {
+  ): Promise<UserDto> {
     const updatedUser = await this.userModel.findByIdAndUpdate(
       userId,
       updateData,
       { new: true },
     );
-    return updatedUser ? this.toDto(updatedUser) : null;
+    if (updatedUser) return this.toDto(updatedUser);
+
+    throw new BadRequestException('User Not Found');
   }
 
   public async generateLoginResponse(
@@ -83,6 +92,46 @@ export class UsersService {
       HttpStatus.OK,
       message,
       loginResponse,
+    );
+  }
+
+  async getMyProfile(user: User): Promise<ApiResponse<UserDto>> {
+    const userDto = await this.getUser({ email: user.email });
+
+    if (!userDto) throw new BadRequestException('User Not Found');
+
+    return ApiResponse.success(
+      HttpStatus.OK,
+      'Profile fetch successfully',
+      userDto,
+    );
+  }
+
+  async updateAvatar(
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<ApiResponse<UserDto>> {
+    const account = await this.findUser({ email: user.email });
+
+    if (!account) throw new BadRequestException('User Not Found');
+
+    if (account.cloudinaryAvatarId)
+      await this.cloudinaryService.deleteFile(account.cloudinaryAvatarId);
+
+    const uploadResult = await this.cloudinaryService.uploadFile(
+      file,
+      'avatar',
+    );
+
+    const updatedUser = await this.updateUser(account.id.toString(), {
+      avatar: uploadResult.secure_url,
+      cloudinaryAvatarId: uploadResult.public_id,
+    });
+
+    return ApiResponse.success(
+      HttpStatus.OK,
+      'Avatar Updated Successsfully',
+      updatedUser,
     );
   }
 

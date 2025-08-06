@@ -6,6 +6,7 @@ import { AdminsAuthModule } from './auth/admins/admins-auth.module';
 import { UsersAuthModule } from './auth/users/users-auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UsersModule,
     UsersAuthModule,
     AdminsAuthModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

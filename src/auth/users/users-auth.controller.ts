@@ -360,11 +360,11 @@ export class UsersAuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Confirm User Email',
-    description: 'Confirms the user email using the verification code (OTP)',
+    summary: 'Reset User Password',
+    description: 'Change password when user forgot',
   })
   @ApiOkResponse({
-    description: 'Email confirmed successfully',
+    description: 'Password Changed Successfully',
     content: {
       'application/json': {
         schema: {
@@ -375,7 +375,7 @@ export class UsersAuthController {
                 statusCode: { type: 'number', example: 200 },
                 message: {
                   type: 'string',
-                  example: 'Email confirmed successfully',
+                  example: 'Password Changed Successfully',
                 },
                 data: { $ref: getSchemaPath(LoginResponse) },
               },
@@ -386,7 +386,7 @@ export class UsersAuthController {
     },
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data',
+    description: 'Invalid OTP',
     content: {
       'application/json': {
         schema: {
@@ -396,7 +396,7 @@ export class UsersAuthController {
             statusCode: { type: 'number', example: 400 },
             message: {
               type: 'string',
-              example: 'Invalid email address or verification code',
+              example: 'Invalid OTP',
             },
             error: { type: 'string', example: 'Bad Request' },
           },
