@@ -19,7 +19,7 @@ import { LoginResponse } from './dtos/login.response';
 import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
-import { GoogleAuthDto } from './dtos/google-aut.dto';
+import { GoogleAuthRequest } from './dtos/google-aut.dto';
 import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
@@ -339,7 +339,7 @@ export class UsersAuthService {
   }
 
   async handleGoogleLogin(
-    googleAuth: GoogleAuthDto,
+    googleAuth: GoogleAuthRequest,
   ): Promise<ApiResponse<LoginResponse>> {
     try {
       const ticket = await this.googleClient.verifyIdToken({

@@ -33,7 +33,7 @@ import { JwtRefreshValidationGuard } from './guards/jwt-refresh-validation.guard
 import { JwtRefreshTokenGuard } from './guards/jwt-refresh.guard';
 import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
-import { GoogleAuthDto } from './dtos/google-aut.dto';
+import { GoogleAuthRequest } from './dtos/google-aut.dto';
 
 @Controller('auth/users')
 @ApiTags('Users Authentication')
@@ -113,7 +113,6 @@ export class UsersAuthController {
       },
     },
   })
-  // TODO: Consider users that are already registered but not verified
   async signup(
     @Body() emailSignupDto: EmailSignupDto,
   ): Promise<ApiResponse<UserDto>> {
@@ -321,7 +320,6 @@ export class UsersAuthController {
     );
   }
 
-  // TODO: Forgot Password
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -355,7 +353,6 @@ export class UsersAuthController {
     return await this.usersAuthService.passwordReset(passwordReset);
   }
 
-  // TODO: Reset Password
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -409,15 +406,56 @@ export class UsersAuthController {
     return await this.usersAuthService.resetPassword(resetPassword);
   }
 
-  // TODO: Google OAuth Signup/Login
   @ApiOperation({
     summary: 'Google Login',
     description: 'Endpoint for logging in with Google OAuth',
   })
   @Post('google')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'User logged in successfully',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(ApiResponse) },
+            {
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'Google login successful',
+                },
+                data: { $ref: getSchemaPath(LoginResponse) },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid Google ID Token',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 400 },
+            message: { type: 'string', example: 'Invalid Google ID Token' },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
+  @ApiBody({
+    description: 'Google User ID Token',
+    type: GoogleAuthRequest,
+  })
   async googleLogin(
-    @Body() googleAuth: GoogleAuthDto,
+    @Body() googleAuth: GoogleAuthRequest,
   ): Promise<ApiResponse<LoginResponse>> {
     return await this.usersAuthService.handleGoogleLogin(googleAuth);
   }
