@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   Put,
@@ -81,6 +82,49 @@ export class UsersController {
   }
 
   @Put('change-avatar')
+  @ApiOperation({
+    summary: 'Update User Profile Avatar',
+    description:
+      'When a user wnanted to change their profile picture from the default avatar',
+  })
+  @ApiOkResponse({
+    description: 'Avatar Updated Successsfully',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(ApiResponse) },
+            {
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'Avatar Updated Successsfully',
+                },
+                data: { $ref: getSchemaPath(UserDto) },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'User not found',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 400 },
+            message: { type: 'string', example: 'User not found' },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -102,5 +146,51 @@ export class UsersController {
     file: Express.Multer.File,
   ): Promise<ApiResponse<UserDto>> {
     return await this.usersService.updateAvatar(user, file);
+  }
+
+  @Delete()
+  @ApiOperation({
+    summary: 'Request to Delete User Account',
+    description: 'When a user decided to delete their account from the system',
+  })
+  @ApiOkResponse({
+    description: 'Account Deletion Requested Successfully',
+    content: {
+      'application/json': {
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(ApiResponse) },
+            {
+              properties: {
+                statusCode: { type: 'number', example: 200 },
+                message: {
+                  type: 'string',
+                  example: 'Account Deletion Requested Successfully',
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Account not found',
+    content: {
+      'application/json': {
+        schema: {
+          properties: {
+            success: { type: 'boolean', example: false },
+            status: { type: 'string', example: 'Error' },
+            statusCode: { type: 'number', example: 400 },
+            message: { type: 'string', example: 'Account not found' },
+            error: { type: 'string', example: 'Bad Request' },
+          },
+        },
+      },
+    },
+  })
+  async deleteAccount(@CurrentUser() user: User): Promise<ApiResponse<string>> {
+    return await this.usersService.deleteUserAccount(user);
   }
 }

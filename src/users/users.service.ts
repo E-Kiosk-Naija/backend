@@ -13,6 +13,7 @@ import { LoginResponse } from 'src/auth/users/dtos/login.response';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
 
 @Injectable()
 export class UsersService {
@@ -159,6 +160,28 @@ export class UsersService {
     }
 
     return (await this.userModel.create({ ...googleUser })).save();
+  }
+
+  async deleteUserAccount(user: User): Promise<ApiResponse<string>> {
+    const userExists = await this.findUser({ email: user.email });
+
+    if (!userExists || userExists.status !== AccountStatus.VERIFIED)
+      throw new BadRequestException('Invalid account');
+
+    userExists.status = AccountStatus.DELETED;
+    userExists.deletedAt = new Date();
+    userExists.isDeleted = true;
+    userExists.email = userExists.email;
+    userExists.save();
+
+    const updatedUser = await this.userModel.findOne({
+      email: userExists.email,
+    });
+
+    return ApiResponse.success(
+      HttpStatus.OK,
+      'Account Deletion Requested Successfully',
+    );
   }
 
   /**

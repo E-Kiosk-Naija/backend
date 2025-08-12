@@ -341,53 +341,51 @@ export class UsersAuthService {
   async handleGoogleLogin(
     googleAuth: GoogleAuthRequest,
   ): Promise<ApiResponse<LoginResponse>> {
-    try {
-      const ticket = await this.googleClient.verifyIdToken({
-        idToken: googleAuth.idToken,
-        audience: this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'),
-      });
-      const payload = ticket.getPayload();
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: googleAuth.idToken,
+      audience: this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'),
+    });
+    const payload = ticket.getPayload();
 
-      if (!payload) {
-        throw new UnauthorizedException('Invalid Google ID Token');
-      }
-
-      if (!payload.email) {
-        throw new UnauthorizedException('Invalid Google ID Token');
-      }
-
-      const existingUser = await this.userService.getUser({
-        email: payload.email,
-      });
-
-      if (existingUser) {
-        // User exists, update last login and return login response
-        return this.userService.generateLoginResponse(
-          existingUser,
-          'Google login successful',
-        );
-      }
-
-      const user = await this.userService.validateGoogleUser({
-        googleId: payload.sub,
-        email: payload.email,
-        fullName: payload.given_name
-          ? payload.given_name + ' ' + payload.family_name
-          : payload.name,
-        avatar: payload.picture,
-        status: AccountStatus.VERIFIED,
-        lastLogin: new Date(),
-        signupMethod: SignupMethod.GOOGLE,
-      });
-
-      return this.userService.generateLoginResponse(
-        user,
-        'Google login successful',
-      );
-    } catch (error) {
-      console.error('Google login error:', error);
+    if (!payload) {
       throw new UnauthorizedException('Invalid Google ID Token');
     }
+
+    if (!payload.email) {
+      throw new UnauthorizedException('Invalid Google ID Token');
+    }
+
+    const existingUser = await this.userService.findUser({
+      email: payload.email,
+    });
+
+    if (existingUser?.isDeleted)
+      throw new BadRequestException('Account Deleted by the User');
+
+    if (existingUser) {
+      // User exists, update last login and return login response
+      return this.userService.generateLoginResponse(
+        existingUser,
+        'Google login successful',
+      );
+    }
+
+    const user = await this.userService.validateGoogleUser({
+      googleId: payload.sub,
+      email: payload.email,
+      fullName: payload.given_name
+        ? payload.given_name + ' ' + payload.family_name
+        : payload.name,
+      avatar: payload.picture,
+      status: AccountStatus.VERIFIED,
+      lastLogin: new Date(),
+      signupMethod: SignupMethod.GOOGLE,
+    });
+
+    return this.userService.generateLoginResponse(
+      user,
+      'Google login successful',
+    );
   }
 
   private generateAvatar(): string {
