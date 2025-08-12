@@ -135,6 +135,32 @@ export class UsersService {
     );
   }
 
+  async validateGoogleUser(googleUser: Partial<User>): Promise<User> {
+    if (!googleUser.email || !googleUser.googleId) {
+      throw new BadRequestException(
+        'Google user email or googleId are required',
+      );
+    }
+
+    const userExists = await this.userModel.findOne({
+      email: googleUser.email,
+      googleId: googleUser.email,
+    });
+
+    if (userExists) {
+      await this.userModel.updateOne(
+        { email: googleUser.email },
+        {
+          ...userExists,
+          ...googleUser,
+        },
+      );
+      return { ...userExists, ...googleUser };
+    }
+
+    return (await this.userModel.create({ ...googleUser })).save();
+  }
+
   /**
    * Generates a JWT access token using the provided payload.
    *

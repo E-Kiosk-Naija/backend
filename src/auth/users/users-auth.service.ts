@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { EmailSignupDto } from '../common/dtos/email.signup.dto';
 import { UserDto } from '../../users/schema/dtos/user.dto';
@@ -18,15 +19,23 @@ import { LoginResponse } from './dtos/login.response';
 import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
+import { GoogleAuthDto } from './dtos/google-aut.dto';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class UsersAuthService {
   private readonly logger = new Logger(UsersAuthService.name);
 
+  private readonly googleClient: OAuth2Client;
+
   constructor(
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.googleClient = new OAuth2Client(
+      configService.getOrThrow('GOOGLE_CLIENT_ID'),
+    );
+  }
 
   async emailSignup(
     emailSignupDto: EmailSignupDto,
@@ -327,6 +336,58 @@ export class UsersAuthService {
       updatedUser,
       'Password Changed Successfully',
     );
+  }
+
+  async handleGoogleLogin(
+    googleAuth: GoogleAuthDto,
+  ): Promise<ApiResponse<LoginResponse>> {
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: googleAuth.idToken,
+        audience: this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'),
+      });
+      const payload = ticket.getPayload();
+
+      if (!payload) {
+        throw new UnauthorizedException('Invalid Google ID Token');
+      }
+
+      if (!payload.email) {
+        throw new UnauthorizedException('Invalid Google ID Token');
+      }
+
+      const existingUser = await this.userService.getUser({
+        email: payload.email,
+      });
+
+      if (existingUser) {
+        // User exists, update last login and return login response
+        return this.userService.generateLoginResponse(
+          existingUser,
+          'Google login successful',
+        );
+      }
+
+      const user = await this.userService.validateGoogleUser({
+        googleId: payload.sub,
+        email: payload.email,
+        fullName: payload.given_name
+          ? payload.given_name + ' ' + payload.family_name
+          : payload.name,
+        avatar: payload.picture,
+        status: AccountStatus.VERIFIED,
+        lastLogin: new Date(),
+        signupMethod: SignupMethod.GOOGLE,
+      });
+
+      return this.userService.generateLoginResponse(
+        user,
+        'Google login successful',
+      );
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw new UnauthorizedException('Invalid Google ID Token');
+    }
   }
 
   private generateAvatar(): string {

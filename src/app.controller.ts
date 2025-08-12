@@ -13,7 +13,7 @@ export class AppController {
     return {
       success: true,
       status: HttpStatus.OK,
-      message: 'E-Kiosk Naija API is running smoothly!',
+      message: 'e-Kiosk Naija API is running smoothly!',
       time: new Date().toISOString(),
     };
   }

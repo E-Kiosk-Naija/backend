@@ -33,6 +33,7 @@ import { JwtRefreshValidationGuard } from './guards/jwt-refresh-validation.guard
 import { JwtRefreshTokenGuard } from './guards/jwt-refresh.guard';
 import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
+import { GoogleAuthDto } from './dtos/google-aut.dto';
 
 @Controller('auth/users')
 @ApiTags('Users Authentication')
@@ -320,8 +321,6 @@ export class UsersAuthController {
     );
   }
 
-  // TODO: Google OAuth Signup/Login
-
   // TODO: Forgot Password
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
@@ -408,5 +407,18 @@ export class UsersAuthController {
     @Body() resetPassword: ResetPasswordRequest,
   ): Promise<ApiResponse<LoginResponse>> {
     return await this.usersAuthService.resetPassword(resetPassword);
+  }
+
+  // TODO: Google OAuth Signup/Login
+  @ApiOperation({
+    summary: 'Google Login',
+    description: 'Endpoint for logging in with Google OAuth',
+  })
+  @Post('google')
+  @HttpCode(200)
+  async googleLogin(
+    @Body() googleAuth: GoogleAuthDto,
+  ): Promise<ApiResponse<LoginResponse>> {
+    return await this.usersAuthService.handleGoogleLogin(googleAuth);
   }
 }
