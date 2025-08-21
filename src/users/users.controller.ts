@@ -9,10 +9,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/users/guards/jwt-auth.guard';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/users/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from './schema/users.schema';
-import { ApiResponse } from 'src/universal/api.response';
+import { ApiResponse } from '../universal/api.response';
 import { UserDto } from './schema/dtos/user.dto';
 import {
   ApiBadRequestResponse,

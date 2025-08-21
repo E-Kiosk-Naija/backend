@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UserDto } from 'src/users/schema/dtos/user.dto';
-import { UsersService } from 'src/users/users.service';
+import { UserDto } from '../../../users/schema/dtos/user.dto';
+import { UsersService } from '../../../users/users.service';
 
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(

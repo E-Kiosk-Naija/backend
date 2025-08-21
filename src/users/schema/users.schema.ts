@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
+import { AccountStatus } from '../../auth/common/enums/account-status.enum';
 import { SignupMethod } from './enums/signup-method.enum';
 
 @Schema({ timestamps: true, versionKey: false })

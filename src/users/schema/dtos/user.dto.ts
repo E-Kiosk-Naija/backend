@@ -1,4 +1,4 @@
-import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
+import { AccountStatus } from '../../../auth/common/enums/account-status.enum';
 import { SignupMethod } from '../enums/signup-method.enum';
 import { ApiProperty } from '@nestjs/swagger';
 

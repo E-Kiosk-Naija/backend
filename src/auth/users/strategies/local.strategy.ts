@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
-import { UsersService } from 'src/users/users.service';
+import { AccountStatus } from '../../common/enums/account-status.enum';
+import { UsersService } from '../../../users/users.service';
 import { compare } from 'bcrypt';
-import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
+import { SignupMethod } from '../../../users/schema/enums/signup-method.enum';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

@@ -20,8 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { UsersAuthService } from './users-auth.service';
 import { EmailSignupDto } from '../common/dtos/email.signup.dto';
-import { ApiResponse } from 'src/universal/api.response';
-import { UserDto } from 'src/users/schema/dtos/user.dto';
+import { ApiResponse } from '../../universal/api.response';
+import { UserDto } from '../../users/schema/dtos/user.dto';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { LoginResponse } from './dtos/login.response';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';

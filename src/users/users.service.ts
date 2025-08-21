@@ -8,12 +8,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/users.schema';
 import { FilterQuery, Model } from 'mongoose';
 import { UserDto } from './schema/dtos/user.dto';
-import { ApiResponse } from 'src/universal/api.response';
-import { LoginResponse } from 'src/auth/users/dtos/login.response';
+import { ApiResponse } from '../universal/api.response';
+import { LoginResponse } from '../auth/users/dtos/login.response';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { AccountStatus } from '../auth/common/enums/account-status.enum';
 
 @Injectable()
 export class UsersService {

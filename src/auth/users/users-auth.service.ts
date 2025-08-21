@@ -9,10 +9,10 @@ import {
 import { EmailSignupDto } from '../common/dtos/email.signup.dto';
 import { UserDto } from '../../users/schema/dtos/user.dto';
 import { ApiResponse } from '../../universal/api.response';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../../users/users.service';
 import { AccountStatus } from '../common/enums/account-status.enum';
 import { hash, compare } from 'bcrypt';
-import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
+import { SignupMethod } from '../../users/schema/enums/signup-method.enum';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
 import { LoginResponse } from './dtos/login.response';
