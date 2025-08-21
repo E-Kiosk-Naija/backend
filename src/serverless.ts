@@ -1,14 +1,15 @@
-import express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { useContainer } from 'class-validator';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './exception/all-exceptions.filter';
+import { Request, Response } from 'express';
 
-let serverInstance: express.Express | null = null;
+const express = require('express');
+let serverInstance: any = null;
 
-async function bootstrap(): Promise<express.Express> {
+async function bootstrap(): Promise<any> {
   if (serverInstance) return serverInstance;
 
   const expressApp = express();
@@ -50,8 +51,8 @@ async function bootstrap(): Promise<express.Express> {
 
 // Default export required by Vercel's Node builder
 export default async function handler(
-  req: express.Request,
-  res: express.Response,
+  req: Request,
+  res: Response,
 ) {
   const server = await bootstrap();
   server(req, res);
