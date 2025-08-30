@@ -21,6 +21,8 @@ import { ConfigService } from '@nestjs/config';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
 import { GoogleAuthRequest } from './dtos/google-aut.dto';
 import { OAuth2Client } from 'google-auth-library';
+import { EmailService } from 'src/email/email.service';
+import CONFIRM_EMAIL_TEMPLATE from 'src/email/templates/comfirm-email-otp';
 
 @Injectable()
 export class UsersAuthService {
@@ -31,6 +33,7 @@ export class UsersAuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {
     this.googleClient = new OAuth2Client(
       configService.getOrThrow('GOOGLE_CLIENT_ID'),
@@ -87,6 +90,18 @@ export class UsersAuthService {
     this.logger.debug(
       `New user registered: ${newUser.email} with verification code: ${otp}`,
     );
+
+    // TODO: Send email
+
+    const htmlBody = CONFIRM_EMAIL_TEMPLATE(emailSignupDto.fullName, otp);
+
+    const emailResponse = await this.emailService.sendEmail(
+      newUser.email,
+      `Email Verification - ${otp}`,
+      htmlBody,
+    );
+
+    // this.logger.debug(`Email response ${JSON.stringify(emailResponse)}`);
 
     return ApiResponse.success<UserDto>(
       HttpStatus.CREATED,
