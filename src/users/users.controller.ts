@@ -27,7 +27,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from './pipes/file-validation.pipe';
 
-@Controller('api/v1/users')
+@Controller('users')
 @ApiTags('User Controler')
 @ApiBearerAuth('accessToken')
 @UseGuards(JwtAuthGuard)
