@@ -44,7 +44,7 @@ const CONFIRM_EMAIL_TEMPLATE = (name: string, otp: string): string => {
           Hello <strong>${name}</strong>,
         </p>
         <p style="font-size: 16px; color: #2c3e50; margin-bottom: 20px;">
-          Use the OTP code below to complete your verification process. This code is valid for <strong>5 minutes</strong>.
+          Use the OTP code below to complete your verification process. This code is valid for <strong>30 minutes</strong>.
         </p>
 
         <!-- OTP Box -->
