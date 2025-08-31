@@ -35,7 +35,7 @@ import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
 import { GoogleAuthRequest } from './dtos/google-aut.dto';
 
-@Controller('auth/users')
+@Controller('api/v1/auth/users')
 @ApiTags('Users Authentication')
 export class UsersAuthController {
   constructor(private readonly usersAuthService: UsersAuthService) {}
