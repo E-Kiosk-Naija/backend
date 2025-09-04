@@ -9,6 +9,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { EmailModule } from './email/email.module';
 import { WalletModule } from './wallet/wallet.module';
+import { ProductsModule } from './products/products.module';
+import { AdminsModule } from './admins/admins.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { WalletModule } from './wallet/wallet.module';
     CloudinaryModule,
     EmailModule,
     WalletModule,
+    ProductsModule,
+    AdminsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

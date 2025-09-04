@@ -10,14 +10,17 @@ export class Wallet {
   @Prop({ type: Number, required: true, default: 0 })
   balance: number;
 
-  @Prop({ type: Number, required: false, default: 0 })
-  balanceBefore: number;
+  // @Prop({ type: Number, required: false, default: 0 })
+  // balanceBefore: number;
 
-  @Prop({ type: Number, required: false, default: 0 })
-  balanceAfter: number;
+  // @Prop({ type: Number, required: false, default: 0 })
+  // balanceAfter: number;
 
   @Prop({ type: String, required: true, unique: true })
   walletReference: string;
+
+  @Prop({ type: Number, default: 0, required: false })
+  ledgerBalance: number;
 
   @Prop({
     type: String,

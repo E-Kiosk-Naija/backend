@@ -23,6 +23,8 @@ import { GoogleAuthRequest } from './dtos/google-aut.dto';
 import { OAuth2Client } from 'google-auth-library';
 import { EmailService } from 'src/email/email.service';
 import CONFIRM_EMAIL_TEMPLATE from 'src/email/templates/comfirm-email-otp';
+import { WalletService } from 'src/wallet/wallet.service';
+import { UserDocument } from 'src/users/schema/users.schema';
 
 @Injectable()
 export class UsersAuthService {
@@ -34,6 +36,7 @@ export class UsersAuthService {
     private readonly userService: UsersService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    private readonly walletService: WalletService,
   ) {
     this.googleClient = new OAuth2Client(
       configService.getOrThrow('GOOGLE_CLIENT_ID'),
@@ -207,6 +210,12 @@ export class UsersAuthService {
     }
 
     this.logger.debug(`User ${user.email} confirmed their email successfully`);
+
+    const wallet = await this.walletService.createWallet(user);
+
+    this.logger.debug(
+      `Wallet created for user ${user.email} with reference ${wallet.walletReference}`,
+    );
 
     return await this.userService.generateLoginResponse(
       updatedUser,
@@ -396,6 +405,12 @@ export class UsersAuthService {
       lastLogin: new Date(),
       signupMethod: SignupMethod.GOOGLE,
     });
+
+    const wallet = await this.walletService.createWallet(user as UserDocument);
+
+    this.logger.debug(
+      `Wallet created for user ${user.email} with reference ${wallet.walletReference}`,
+    );
 
     return this.userService.generateLoginResponse(
       user,

@@ -49,6 +49,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     //   throw new BadRequestException('Account is not active');
     // }
 
-    return this.userService.toDto(user);
+    return this.userService.toDto(user); // req.user == this.userService.toDto(user);
   }
 }

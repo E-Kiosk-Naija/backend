@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-import { User } from 'src/users/schema/users.schema';
+import { User, UserDocument } from 'src/users/schema/users.schema';
 import { ApiResponse } from 'src/universal/api.response';
 import { WalletDto } from './schema/dto/wallet.dto';
 import {
@@ -28,7 +28,7 @@ import { FundWalletDto } from './schema/dto/fund-wallet.request';
 export class WalletController {
   constructor(private walletService: WalletService) {}
 
-  @Post('create')
+  @Post()
   @ApiCreatedResponse({
     description: 'Create a wallet for a logged in user if not exists',
     content: {
@@ -47,9 +47,9 @@ export class WalletController {
     },
   })
   async createWallet(
-    @CurrentUser() user: User,
+    @CurrentUser() user: UserDocument,
   ): Promise<ApiResponse<WalletDto>> {
-    return await this.walletService.createWallet(user);
+    return await this.walletService.createWalletForUser(user);
   }
 
   @Get()

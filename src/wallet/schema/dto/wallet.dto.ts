@@ -15,6 +15,18 @@ export class WalletDto {
   })
   balance: number;
 
+  //   @ApiProperty({
+  //     description: 'Balance of the wallet before the transaction',
+  //     example: 100.0,
+  //   })
+  //   balanceBefore: number;
+
+  //   @ApiProperty({
+  //     description: 'Balance of the wallet after the transaction',
+  //     example: 90.0,
+  //   })
+  //   balanceAfter: number;
+
   @ApiProperty({
     description: 'Balance of the wallet before the transaction',
     example: 100.0,
@@ -25,7 +37,7 @@ export class WalletDto {
     description: 'Balance of the wallet after the transaction',
     example: 90.0,
   })
-  balanceAfter: number;
+  ledgerBalance: number;
 
   @ApiProperty({
     description: 'Unique reference for the wallet',

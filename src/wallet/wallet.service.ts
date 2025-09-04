@@ -1,8 +1,13 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { Wallet, WalletDocument } from './schema/wallet.schema';
 import { FilterQuery, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/users/schema/users.schema';
+import { User, UserDocument } from 'src/users/schema/users.schema';
 import { UsersService } from 'src/users/users.service';
 import { WalletDto } from './schema/dto/wallet.dto';
 import { ApiResponse } from 'src/universal/api.response';
@@ -14,7 +19,18 @@ export class WalletService {
     private readonly usersService: UsersService,
   ) {}
 
-  async createWallet(user: User): Promise<ApiResponse<WalletDto>> {
+  async createWallet(user: UserDocument): Promise<WalletDocument> {
+    const wallet = new this.walletModel({
+      user: user._id,
+      walletReference: this.generateWalletReference(user._id.toString()),
+      balance: 0,
+    });
+    return await wallet.save();
+  }
+
+  async createWalletForUser(
+    user: UserDocument,
+  ): Promise<ApiResponse<WalletDto>> {
     const userExists = await this.usersService.findUser({ email: user.email });
 
     if (!userExists) {
@@ -26,16 +42,10 @@ export class WalletService {
     });
 
     if (walletExists) {
-      throw new BadRequestException('Wallet already exists');
+      throw new ConflictException('Wallet already exists');
     }
 
-    const newWallet: WalletDocument = new this.walletModel({
-      user: userExists._id,
-      walletReference: this.generateWalletReference(userExists._id.toString()),
-      balance: 0,
-    });
-
-    const savedWallet = await newWallet.save();
+    const savedWallet = await this.createWallet(userExists);
     return ApiResponse.success(
       HttpStatus.CREATED,
       'Wallet created successfully',
