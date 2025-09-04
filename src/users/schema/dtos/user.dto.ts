@@ -59,6 +59,9 @@ export class UserDto {
   lastLogin?: Date | null;
 
   constructor(partial: Partial<UserDto>) {
-    Object.assign(this, partial);
+    Object.entries(partial).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && key in this)
+        this[key] = value;
+    });
   }
 }

@@ -1,0 +1,106 @@
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotImplementedException,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { WalletService } from './wallet.service';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/users/schema/users.schema';
+import { ApiResponse } from 'src/universal/api.response';
+import { WalletDto } from './schema/dto/wallet.dto';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/users/guards/jwt-auth.guard';
+import { FundWalletDto } from './schema/dto/fund-wallet.request';
+
+@Controller('wallet')
+@ApiBearerAuth('accessToken')
+@UseGuards(JwtAuthGuard)
+export class WalletController {
+  constructor(private walletService: WalletService) {}
+
+  @Post('create')
+  @ApiCreatedResponse({
+    description: 'Create a wallet for a logged in user if not exists',
+    content: {
+      'application/json': {
+        schema: {
+          $ref: getSchemaPath(ApiResponse<WalletDto>),
+          properties: {
+            statusCode: { type: 'number', example: 201 },
+            message: { type: 'string', example: 'Wallet created successfully' },
+            data: {
+              $ref: getSchemaPath(WalletDto),
+            },
+          },
+        },
+      },
+    },
+  })
+  async createWallet(
+    @CurrentUser() user: User,
+  ): Promise<ApiResponse<WalletDto>> {
+    return await this.walletService.createWallet(user);
+  }
+
+  @Get()
+  @ApiOkResponse({
+    description: 'Get the wallet of the logged in user',
+    content: {
+      'application/json': {
+        schema: {
+          $ref: getSchemaPath(ApiResponse<WalletDto>),
+          properties: {
+            statusCode: { type: 'number', example: 200 },
+            message: {
+              type: 'string',
+              example: 'Wallet retrieved successfully',
+            },
+            data: {
+              $ref: getSchemaPath(WalletDto),
+            },
+          },
+        },
+      },
+    },
+  })
+  async getWallet(@CurrentUser() user: User): Promise<ApiResponse<WalletDto>> {
+    return await this.walletService.getUserWallet(user);
+  }
+
+  @Post('fund')
+  @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({
+    description: 'Fund the wallet of the logged in user',
+    content: {
+      'application/json': {
+        schema: {
+          $ref: getSchemaPath(ApiResponse<string>),
+          properties: {
+            statusCode: { type: 'number', example: 201 },
+            message: { type: 'string', example: 'Wallet funded successfully' },
+            data: { type: 'string', example: 'Transaction ID' },
+          },
+        },
+      },
+    },
+  })
+  async fundWallet(
+    @CurrentUser() user: User,
+    @Body() fundDto: FundWalletDto,
+  ): Promise<ApiResponse<string>> {
+    throw new NotImplementedException(
+      'Fund wallet feature not implemented yet',
+    );
+    // return await this.walletService.fundWallet(user, fundDto);
+  }
+}
