@@ -39,7 +39,12 @@ async function bootstrap() {
     .setTitle('e-Kiosk Naija API')
     .setDescription('The E-Kiosk Naija API documentation')
     .setVersion('1.0.0')
-    // .addTag('e-Kiosk')
+    .setLicense('MIT', 'https://opensource.org/license/mit/')
+    .setContact(
+      'e-Kiosk Naija',
+      'https://ekiosknaija.com.ng',
+      'info@ekiosknaija.com.ng',
+    )
     .addBearerAuth(
       {
         type: 'http',
@@ -60,7 +65,15 @@ async function bootstrap() {
       AdminLoginResponse,
     ], // Add any additional models that are not automatically included
   });
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('api-docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // Persist authorization across page reloads
+      docExpansion: 'none', // Collapse all sections by default
+      filter: true, // Enable filtering of endpoints
+      showRequestDuration: true, // Show request duration
+      defaultModelsExpandDepth: -1, // Hide models section by default
+    },
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

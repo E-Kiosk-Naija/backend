@@ -16,6 +16,7 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiSecurity,
+  ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { AdminLoginRequest } from './dtos/admin-login.request';
@@ -25,6 +26,7 @@ import { JwtRefreshValidationGuard } from '../common/guards/jwt-refresh-validati
 import { AdminJwtRefreshTokenGuard } from './guards/admin-jwt-refresh.guard';
 
 @Controller('/api/v1/auth/admins')
+@ApiTags('Admins Authentication')
 export class AdminsAuthController {
   constructor(private readonly adminsAuthService: AdminsAuthService) {}
 

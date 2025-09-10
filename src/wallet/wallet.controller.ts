@@ -17,6 +17,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { UserJwtAuthGuard } from 'src/auth/users/guards/user-jwt-auth.guard';
@@ -25,6 +26,7 @@ import { FundWalletDto } from './schema/dto/fund-wallet.request';
 @Controller('/api/v1/wallets')
 @ApiBearerAuth('accessToken')
 @UseGuards(UserJwtAuthGuard)
+@ApiTags('Wallets')
 export class WalletController {
   constructor(private walletService: WalletService) {}
 

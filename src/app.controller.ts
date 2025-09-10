@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { time } from 'console';
 import { FundWalletDto } from './wallet/schema/dto/fund-wallet.request';
 import { ApiResponse } from './universal/api.response';
@@ -31,6 +31,7 @@ export class AppController {
 
   @Post('fund/wallet/webhook')
   @HttpCode(HttpStatus.OK)
+  @ApiExcludeEndpoint()
   async fundWalletWebhook(
     @Body() fundDto: FundWalletDto,
   ): Promise<ApiResponse<string>> {

@@ -22,6 +22,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiQuery,
+  ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { AdminJwtAuthGuard } from 'src/auth/admins/guards/admin-jwt.guard';
@@ -30,6 +31,7 @@ import { PagedApiResponse } from 'src/universal/paged-api.response';
 @Controller('/api/v1/admins')
 @ApiBearerAuth('accessToken')
 @UseGuards(AdminJwtAuthGuard)
+@ApiTags('Admins')
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) {}
 
