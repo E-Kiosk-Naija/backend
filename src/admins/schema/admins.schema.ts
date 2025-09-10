@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { AdminRole } from './enums/admin-roles.enum';
+import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
 
 @Schema({ timestamps: true, versionKey: false })
 export class Admin {
@@ -15,6 +16,9 @@ export class Admin {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ required: false, default: AccountStatus.VERIFIED })
+  status: AccountStatus;
 
   @Prop({ required: Boolean, default: true })
   forcePasswordChange: boolean;

@@ -19,12 +19,12 @@ import {
   ApiOkResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/users/guards/jwt-auth.guard';
+import { UserJwtAuthGuard } from 'src/auth/users/guards/user-jwt-auth.guard';
 import { FundWalletDto } from './schema/dto/fund-wallet.request';
 
-@Controller('wallet')
+@Controller('/api/v1/wallets')
 @ApiBearerAuth('accessToken')
-@UseGuards(JwtAuthGuard)
+@UseGuards(UserJwtAuthGuard)
 export class WalletController {
   constructor(private walletService: WalletService) {}
 

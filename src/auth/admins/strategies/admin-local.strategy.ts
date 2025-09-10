@@ -22,7 +22,11 @@ export class AdminLocalStrategy extends PassportStrategy(
    */
   async validate(email: string, password: string): Promise<any> {
     // Find only verified admins
-    const admin = await this.adminsService.findAdmin({ email });
+    const admin = await this.adminsService.findAdmin({
+      email,
+      status: AccountStatus.VERIFIED,
+      // $or: [{ email: email }, { username: email }],
+    });
 
     if (!admin) {
       throw new BadRequestException('Invalid email or password');
@@ -47,6 +51,7 @@ export class AdminLocalStrategy extends PassportStrategy(
     // Return the full Admin document. Passport will set req.admin when using
     // the strategy with the name 'admin-local'. The CurrentAdmin decorator reads
     // request.admin so it will receive the Admin document.
+
     return admin;
   }
 }

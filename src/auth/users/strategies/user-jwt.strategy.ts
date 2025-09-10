@@ -6,7 +6,7 @@ import { UserDto } from 'src/users/schema/dtos/user.dto';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
   constructor(
     private readonly usersService: UsersService,
     configService: ConfigService,

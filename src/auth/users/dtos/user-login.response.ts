@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from 'src/users/schema/dtos/user.dto';
 
-export class LoginResponse {
+export class UserLoginResponse {
   @ApiProperty({
     description: 'Access token for authenticated user',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC...',

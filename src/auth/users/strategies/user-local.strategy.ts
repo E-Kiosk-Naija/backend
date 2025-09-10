@@ -7,8 +7,8 @@ import { compare } from 'bcrypt';
 import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
-  private readonly logger = new Logger(LocalStrategy.name);
+export class UserLocalStrategy extends PassportStrategy(Strategy) {
+  private readonly logger = new Logger(UserLocalStrategy.name);
 
   constructor(private readonly userService: UsersService) {
     super({

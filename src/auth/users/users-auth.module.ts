@@ -3,10 +3,10 @@ import { UsersAuthController } from './users-auth.controller';
 import { UsersAuthService } from './users-auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { UserLocalStrategy } from './strategies/user-local.strategy';
+import { UserJwtStrategy } from './strategies/user-jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
+import { UserJwtRefreshTokenStrategy } from './strategies/user-jwt-refresh.strategy';
 import { EmailModule } from 'src/email/email.module';
 import { WalletModule } from 'src/wallet/wallet.module';
 
@@ -15,9 +15,9 @@ import { WalletModule } from 'src/wallet/wallet.module';
   controllers: [UsersAuthController],
   providers: [
     UsersAuthService,
-    LocalStrategy,
-    JwtStrategy,
-    JwtRefreshTokenStrategy,
+    UserLocalStrategy,
+    UserJwtStrategy,
+    UserJwtRefreshTokenStrategy,
   ],
 })
 export class UsersAuthModule {}

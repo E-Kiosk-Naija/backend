@@ -15,7 +15,7 @@ import { hash, compare } from 'bcrypt';
 import { SignupMethod } from 'src/users/schema/enums/signup-method.enum';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
-import { LoginResponse } from './dtos/login.response';
+import { UserLoginResponse } from './dtos/user-login.response';
 import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ConfigService } from '@nestjs/config';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
@@ -162,7 +162,7 @@ export class UsersAuthService {
 
   async confirmEmail(
     confirmEmailDto: VerifyEmailRequest,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     const user = await this.userService.validateEmail(confirmEmailDto.email);
     if (!user) {
       throw new BadRequestException(
@@ -223,7 +223,7 @@ export class UsersAuthService {
     );
   }
 
-  async login(user: UserDto): Promise<ApiResponse<LoginResponse>> {
+  async login(user: UserDto): Promise<ApiResponse<UserLoginResponse>> {
     // const user = await this.userService.getUser({
     //   email: loginDto.email,
     //   status: AccountStatus.VERIFIED,
@@ -254,7 +254,7 @@ export class UsersAuthService {
   async refreshToken(
     user: UserDto,
     refreshToken: string,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     if (!refreshToken) {
       throw new BadRequestException('Refresh token is required');
     }
@@ -264,13 +264,13 @@ export class UsersAuthService {
       type: 'access',
     };
 
-    const loginResponse: LoginResponse = new LoginResponse(
+    const loginResponse: UserLoginResponse = new UserLoginResponse(
       this.userService.generateAccessToken(tokenPayload),
       refreshToken,
       user,
     );
 
-    return ApiResponse.success<LoginResponse>(
+    return ApiResponse.success<UserLoginResponse>(
       HttpStatus.OK,
       'Token refreshed successfully',
       loginResponse,
@@ -318,7 +318,7 @@ export class UsersAuthService {
 
   async resetPassword(
     resetRequest: ResetPasswordRequest,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     const account = await this.userService.findUser({
       email: resetRequest.email,
     });
@@ -364,7 +364,7 @@ export class UsersAuthService {
 
   async handleGoogleLogin(
     googleAuth: GoogleAuthRequest,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     const ticket = await this.googleClient.verifyIdToken({
       idToken: googleAuth.idToken,
       audience: this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'),

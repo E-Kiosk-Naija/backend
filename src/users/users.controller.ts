@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/users/guards/jwt-auth.guard';
+import { UserJwtAuthGuard } from 'src/auth/users/guards/user-jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from './schema/users.schema';
 import { ApiResponse } from 'src/universal/api.response';
@@ -27,10 +27,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from './pipes/file-validation.pipe';
 
-@Controller('users')
+@Controller('/api/v1/users')
 @ApiTags('User Controler')
 @ApiBearerAuth('accessToken')
-@UseGuards(JwtAuthGuard)
+@UseGuards(UserJwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

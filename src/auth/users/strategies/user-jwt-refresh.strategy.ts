@@ -6,9 +6,9 @@ import { UserDto } from 'src/users/schema/dtos/user.dto';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class JwtRefreshTokenStrategy extends PassportStrategy(
+export class UserJwtRefreshTokenStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh',
+  'user-jwt-refresh',
 ) {
   constructor(
     private readonly usersService: UsersService,

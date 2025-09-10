@@ -9,7 +9,7 @@ import { User, UserDocument } from './schema/users.schema';
 import { FilterQuery, Model } from 'mongoose';
 import { UserDto } from './schema/dtos/user.dto';
 import { ApiResponse } from 'src/universal/api.response';
-import { LoginResponse } from 'src/auth/users/dtos/login.response';
+import { UserLoginResponse } from 'src/auth/users/dtos/user-login.response';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
@@ -61,7 +61,7 @@ export class UsersService {
   public async generateLoginResponse(
     user: UserDto | any,
     message: string,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     const tokenPayload = {
       sub: user.id,
     };
@@ -83,13 +83,13 @@ export class UsersService {
       refreshToken,
     });
 
-    const loginResponse: LoginResponse = new LoginResponse(
+    const loginResponse: UserLoginResponse = new UserLoginResponse(
       accessToken,
       refreshToken,
       this.toDto(user),
     );
 
-    return ApiResponse.success<LoginResponse>(
+    return ApiResponse.success<UserLoginResponse>(
       HttpStatus.OK,
       message,
       loginResponse,

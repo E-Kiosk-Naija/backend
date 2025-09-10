@@ -23,19 +23,19 @@ import { EmailSignupDto } from '../common/dtos/email.signup.dto';
 import { ApiResponse } from 'src/universal/api.response';
 import { UserDto } from 'src/users/schema/dtos/user.dto';
 import { ResendOtpRequest } from '../common/dtos/resend-otp.request';
-import { LoginResponse } from './dtos/login.response';
+import { UserLoginResponse } from './dtos/user-login.response';
 import { VerifyEmailRequest } from '../common/dtos/verify-email.request';
-import { LoginRequest } from './dtos/login.request';
-import { LocalAuthGuard } from './guards/local.guard';
-import { LoginValidationGuard } from './guards/login.validation.guard';
+import { UserLoginRequest } from './dtos/user-login.request';
+import { UserLocalAuthGuard } from './guards/user-local.guard';
+import { LoginValidationGuard } from '../common/guards/login.validation.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import { JwtRefreshValidationGuard } from './guards/jwt-refresh-validation.guard';
-import { JwtRefreshTokenGuard } from './guards/jwt-refresh.guard';
+import { JwtRefreshValidationGuard } from '../common/guards/jwt-refresh-validation.guard';
+import { UserJwtRefreshTokenGuard } from './guards/user-jwt-refresh.guard';
 import { PasswordResetRequest } from './dtos/password-reset.request';
 import { ResetPasswordRequest } from './dtos/reset-password.request';
 import { GoogleAuthRequest } from './dtos/google-aut.dto';
 
-@Controller('auth/users')
+@Controller('/api/v1/auth/users')
 @ApiTags('Users Authentication')
 export class UsersAuthController {
   constructor(private readonly usersAuthService: UsersAuthService) {}
@@ -174,7 +174,7 @@ export class UsersAuthController {
                   type: 'string',
                   example: 'Email confirmed successfully',
                 },
-                data: { $ref: getSchemaPath(LoginResponse) },
+                data: { $ref: getSchemaPath(UserLoginResponse) },
               },
             },
           ],
@@ -203,14 +203,14 @@ export class UsersAuthController {
   })
   async confirmEmail(
     @Body() confirmEmailDto: VerifyEmailRequest,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     return await this.usersAuthService.confirmEmail(confirmEmailDto);
   }
 
   // Login with Email
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LoginValidationGuard, LocalAuthGuard)
+  @UseGuards(LoginValidationGuard, UserLocalAuthGuard)
   @ApiOperation({
     summary: 'Login with Email',
     description: 'Logs in a user with their email and password.',
@@ -229,7 +229,7 @@ export class UsersAuthController {
                   type: 'string',
                   example: 'User logged in successfully',
                 },
-                data: { $ref: getSchemaPath(LoginResponse) },
+                data: { $ref: getSchemaPath(UserLoginResponse) },
               },
             },
           ],
@@ -255,18 +255,18 @@ export class UsersAuthController {
   })
   @ApiBody({
     description: 'Login credentials',
-    type: LoginRequest,
+    type: UserLoginRequest,
   })
   async login(
     @CurrentUser() user: UserDto,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     return await this.usersAuthService.login(user);
   }
 
   // Refresh Token (JWT Refresh Token in Header) - Secure Route
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtRefreshValidationGuard, JwtRefreshTokenGuard)
+  @UseGuards(JwtRefreshValidationGuard, UserJwtRefreshTokenGuard)
   @ApiOperation({
     summary: 'Refresh User Token',
     description: 'Refreshes the user access token using the refresh token.',
@@ -285,7 +285,7 @@ export class UsersAuthController {
                   type: 'string',
                   example: 'Token refreshed successfully',
                 },
-                data: { $ref: getSchemaPath(LoginResponse) },
+                data: { $ref: getSchemaPath(UserLoginResponse) },
               },
             },
           ],
@@ -313,7 +313,7 @@ export class UsersAuthController {
   async refreshToken(
     @Req() req: Request,
     @CurrentUser() user: UserDto,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     return await this.usersAuthService.refreshToken(
       user,
       req['refreshToken'] as string,
@@ -373,7 +373,7 @@ export class UsersAuthController {
                   type: 'string',
                   example: 'Password Changed Successfully',
                 },
-                data: { $ref: getSchemaPath(LoginResponse) },
+                data: { $ref: getSchemaPath(UserLoginResponse) },
               },
             },
           ],
@@ -402,7 +402,7 @@ export class UsersAuthController {
   })
   async resetPasswprd(
     @Body() resetPassword: ResetPasswordRequest,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     return await this.usersAuthService.resetPassword(resetPassword);
   }
 
@@ -426,7 +426,7 @@ export class UsersAuthController {
                   type: 'string',
                   example: 'Google login successful',
                 },
-                data: { $ref: getSchemaPath(LoginResponse) },
+                data: { $ref: getSchemaPath(UserLoginResponse) },
               },
             },
           ],
@@ -456,7 +456,7 @@ export class UsersAuthController {
   })
   async googleLogin(
     @Body() googleAuth: GoogleAuthRequest,
-  ): Promise<ApiResponse<LoginResponse>> {
+  ): Promise<ApiResponse<UserLoginResponse>> {
     return await this.usersAuthService.handleGoogleLogin(googleAuth);
   }
 }

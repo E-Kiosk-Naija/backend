@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { time } from 'console';
 import { FundWalletDto } from './wallet/schema/dto/fund-wallet.request';
 import { ApiResponse } from './universal/api.response';
+import { timestamp } from 'rxjs';
 
 @Controller()
 @ApiTags('Health Check')
@@ -24,7 +25,7 @@ export class AppController {
       success: true,
       status: HttpStatus.OK,
       message: 'e-Kiosk Naija API is running smoothly!',
-      time: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
     };
   }
 

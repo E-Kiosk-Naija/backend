@@ -27,19 +27,20 @@ export class CreateAdminDto {
   })
   username: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Password of the admin',
-    example: 'securePassword123',
-  })
-  password: string;
+  // @IsString()
+  // @IsNotEmpty()
+  // @ApiProperty({
+  //   description: 'Password of the admin',
+  //   example: 'securePassword123',
+  // })
+  // password: string;
 
   @IsNotEmpty()
   @IsEnum(AdminRole)
   @ApiProperty({
     description: 'Role of the admin',
     example: AdminRole.ADMIN,
+    enum: AdminRole,
   })
   role: AdminRole;
 }
