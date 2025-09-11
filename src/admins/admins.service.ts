@@ -305,11 +305,7 @@ export class AdminsService {
   private toDto(admin: AdminDocument): AdminDto {
     return new AdminDto({
       id: admin._id.toString(),
-      fullName: admin.fullName,
-      username: admin.username,
-      role: admin.role,
-      createdAt: admin.createdAt,
-      updatedAt: admin.updatedAt,
+      ...admin.toObject(),
     });
   }
 }

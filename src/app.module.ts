@@ -11,6 +11,7 @@ import { EmailModule } from './email/email.module';
 import { WalletModule } from './wallet/wallet.module';
 import { ProductsModule } from './products/products.module';
 import { AdminsModule } from './admins/admins.module';
+import { ProductCategoriesModule } from './product-categories/product-categories.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AdminsModule } from './admins/admins.module';
     WalletModule,
     ProductsModule,
     AdminsModule,
+    ProductCategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,7 @@ import { UserDto } from './users/schema/dtos/user.dto';
 import { UserLoginResponse } from './auth/users/dtos/user-login.response';
 import { WalletDto } from './wallet/schema/dto/wallet.dto';
 import { AdminLoginResponse } from './auth/admins/dtos/admin-login.response';
+import { ProductCategoryDto } from './product-categories/schema/dto/product-catrgory.dto';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -63,6 +64,7 @@ async function bootstrap() {
       UserLoginResponse,
       WalletDto,
       AdminLoginResponse,
+      ProductCategoryDto,
     ], // Add any additional models that are not automatically included
   });
   SwaggerModule.setup('api-docs', app, document, {

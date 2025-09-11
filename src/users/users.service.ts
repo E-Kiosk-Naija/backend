@@ -9,11 +9,11 @@ import { User, UserDocument } from './schema/users.schema';
 import { FilterQuery, Model } from 'mongoose';
 import { UserDto } from './schema/dtos/user.dto';
 import { ApiResponse } from 'src/universal/api.response';
-import { UserLoginResponse } from 'src/auth/users/dtos/user-login.response';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { AccountStatus } from 'src/auth/common/enums/account-status.enum';
+import { UserLoginResponse } from 'src/auth/users/dtos/user-login.response';
 
 @Injectable()
 export class UsersService {
@@ -218,16 +218,9 @@ export class UsersService {
   }
 
   public toDto(user: UserDocument): UserDto {
-    const plain = user.toObject();
     return new UserDto({
       id: user._id.toString(),
-      email: plain.email,
-      fullName: plain.fullName,
-      avatar: plain.avatar,
-      googleId: plain.googleId,
-      signupMethod: plain.signupMethod,
-      status: plain.status,
-      lastLogin: plain.lastLogin,
+      ...user.toObject(),
     });
   }
 }

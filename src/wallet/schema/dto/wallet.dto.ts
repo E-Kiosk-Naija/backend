@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Wallet } from '../wallet.schema';
 import { WalletStatus } from '../enums/wallet-status.enum';
 
 export class WalletDto {
@@ -14,24 +13,6 @@ export class WalletDto {
     example: 100.0,
   })
   balance: number;
-
-  //   @ApiProperty({
-  //     description: 'Balance of the wallet before the transaction',
-  //     example: 100.0,
-  //   })
-  //   balanceBefore: number;
-
-  //   @ApiProperty({
-  //     description: 'Balance of the wallet after the transaction',
-  //     example: 90.0,
-  //   })
-  //   balanceAfter: number;
-
-  @ApiProperty({
-    description: 'Balance of the wallet before the transaction',
-    example: 100.0,
-  })
-  balanceBefore: number;
 
   @ApiProperty({
     description: 'Balance of the wallet after the transaction',

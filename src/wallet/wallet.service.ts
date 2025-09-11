@@ -22,7 +22,7 @@ export class WalletService {
   async createWallet(user: UserDocument): Promise<WalletDocument> {
     const wallet = new this.walletModel({
       user: user._id,
-      walletReference: this.generateWalletReference(user._id.toString()),
+      walletReference: `e-${this.generateWalletReference(user._id.toString())}`,
       balance: 0,
     });
     return await wallet.save();
@@ -87,8 +87,8 @@ export class WalletService {
   }
 
   private generateWalletReference(userId: string): string {
-    const shortId = userId.toString().slice(-6); // last 6 chars of ObjectId
-    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `WALLET-${shortId}-${random}`;
+    const shortId = userId.toString().slice(-12); // last 6 chars of ObjectId
+    const random = Math.random().toString(36).substring(2, 6);
+    return `WALLET-${shortId}-${random}`.toUpperCase();
   }
 }

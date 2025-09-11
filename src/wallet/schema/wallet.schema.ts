@@ -5,10 +5,13 @@ import { WalletStatus } from './enums/wallet-status.enum';
 @Schema({ timestamps: true, versionKey: false })
 export class Wallet {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
 
   @Prop({ type: Number, required: true, default: 0 })
   balance: number;
+
+  @Prop({ type: Number, default: 0, required: false })
+  ledgerBalance: number;
 
   // @Prop({ type: Number, required: false, default: 0 })
   // balanceBefore: number;
@@ -18,9 +21,6 @@ export class Wallet {
 
   @Prop({ type: String, required: true, unique: true })
   walletReference: string;
-
-  @Prop({ type: Number, default: 0, required: false })
-  ledgerBalance: number;
 
   @Prop({
     type: String,
