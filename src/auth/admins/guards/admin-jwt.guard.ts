@@ -20,7 +20,7 @@ export class AdminJwtAuthGuard extends AuthGuard('admin-jwt') {
     }
 
     if (!user) {
-      throw new UnauthorizedException('Authentication failed');
+      throw new UnauthorizedException(`Authentication failed: ${info.message}`);
     }
 
     return user;
