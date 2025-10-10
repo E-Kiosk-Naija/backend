@@ -25,7 +25,7 @@ import { ProductCategoryDto } from './schema/dto/product-catrgory.dto';
 import { CurrentAdmin } from 'src/auth/decorators/current-admin.decorator';
 import { AdminDocument } from 'src/admins/schema/admins.schema';
 import { PagedApiResponse } from 'src/universal/paged-api.response';
-import { UpdateProductCategoryRequest } from './schema/dto/update-peoduct-category.request';
+import { UpdateProductCategoryRequest } from './schema/dto/update-product-category.request';
 
 @Controller('product-categories')
 @ApiTags('Product Categories')
